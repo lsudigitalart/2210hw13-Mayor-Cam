@@ -125,6 +125,7 @@ function draw()
     pulseOrb1.hide();
     pulseOrb2.hide();
     pulseOrb3.hide();
+    pulseOrb4.hide();
   }
 
   // Resets measureLoop1 once it goes out of its 8-measure boundary
@@ -298,7 +299,7 @@ function draw()
   text(frameRate(), midX, canvasHeight *3/4);
 */
 
-
+  /*
   // Tool for identifying x and y positions for object placement
   fill(100,100,100);
   strokeWeight(1);
@@ -307,6 +308,7 @@ function draw()
   text(mouseY, midX + 30, 30);
 
   text(pulseOrb2.animFrame, 40, canvasHeight - 30);
+  */
 
   prevTime = timer;
 }
@@ -487,7 +489,7 @@ function harp(x,y, animFrame, amp, r, g, b)
         //ellipse(x,y, this.rad);
         if (this.animFrame < 4)
         {
-          this.tempRad = this.rad + this.animFrame * 2;
+          this.tempRad = this.rad + this.animFrame * 4;
           ellipse(x,y, this.tempRad);
         }
         else if (this.tempRad > this.rad)
