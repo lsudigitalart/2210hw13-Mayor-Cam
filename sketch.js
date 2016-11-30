@@ -14,7 +14,7 @@ var startUpTime;       // Offsets timer to account for start-up time, so timer i
 var beatLength = 400;    //12 frames at 30 fps
 var beat = 3;            // For some reason, the virtual music counter is one beat ahead of the music.  Measures are set to 0 and beat is set to 3 to compensate.
 var measure = 0;
-var objMeasure1 = 0;    // Separate measure count for vertcal line animation cycles
+var measureLoop1 = 0;    // Separate measure loop for harp and pulseOrb animation cycles
 var instBeat = 0;       // Variable created for triggering animations in one instant.  instBeat = beat for only the frames that beat changes.
 
 // Animation Variables
@@ -73,6 +73,14 @@ function setup()
   background(50,50,150);
   textSize(30);
   textAlign(CENTER);
+
+  // Pulse orb constructors.
+  pulseOrb1 = new pulseOrb(midX, midY, 40, 130,220,250);
+  pulseOrb2 = new pulseOrb(midX, 217,  40, 130,220,250);
+  pulseOrb3 = new pulseOrb(midX, 134,  40, 130,220,250);
+  pulseOrb4 = new pulseOrb(midX, 50,   20, 255,255,255);
+  pulseOrb4.wave(10);      // makes pulseOrb4's shockwave effect last longer
+
   music.setVolume(0.1);
   music.play();
   startUpTime = millis();
@@ -86,8 +94,8 @@ function draw()
 
   background(backR,backG,backB);
 
-  fill(0,0,0,alpha);
-  rect(0,0,canvasWidth,canvasHeight);
+  // fill(0,0,0,alpha);
+  // rect(0,0,canvasWidth,canvasHeight);
   fill(0,0,0);
 
   // Half-beat counter
@@ -104,7 +112,7 @@ function draw()
   if (beat == 4)
   {
     measure++;
-    objMeasure1++;
+    measureLoop1++;
     beat = 1;
     instBeat = 1;
   }
@@ -113,20 +121,23 @@ function draw()
   if (measure == 56 && instBeat == 1)
   {
     measure = 1;
-    objMeasure1 = 1;
+    measureLoop1 = 1;
+    pulseOrb1.hide();
+    pulseOrb2.hide();
+    pulseOrb3.hide();
   }
 
-  // Resets objMeasure once it goes out of its 8-measure boundary
-  if (objMeasure1 > 8)
+  // Resets measureLoop1 once it goes out of its 8-measure boundary
+  if (measureLoop1 > 8)
   {
-    objMeasure1 = 1;
+    measureLoop1 = 1;
   }
 
 
   if (measure < 25)
   {
     // Harp 1 animation trigger
-    if ((objMeasure1 == 1 || objMeasure1 == 3 || objMeasure1 == 5) && instBeat == 1)
+    if ((measureLoop1 == 1 || measureLoop1 == 3 || measureLoop1 == 5) && instBeat == 1)
     {
         anim1 = 1;
         amp1 = 10;
@@ -135,7 +146,7 @@ function draw()
         harpB1 = harpBmax;
     }
     // Harp 2 animation trigger
-    if ((objMeasure1 == 2 || objMeasure1 == 4 || objMeasure1 == 6) && instBeat == 1)
+    if ((measureLoop1 == 2 || measureLoop1 == 4 || measureLoop1 == 6) && instBeat == 1)
     {
         anim2 = 1;
         amp2 = 10;
@@ -144,7 +155,7 @@ function draw()
         harpB2 = harpBmax;
     }
     // Harp 3 animation trigger
-    if (objMeasure1 == 7 && instBeat == 1)
+    if (measureLoop1 == 7 && instBeat == 1)
     {
         anim3 = 1;
         amp3 = 10;
@@ -221,10 +232,57 @@ function draw()
   {anim3++;}
 
 
+  // PulseOrb pulse/creation triggers
+  // Pulse orb note order: 341 2-1 341 2-1 341 213 14- ---
+  // Beat counts:          123 123 123 123 123 123 123 123
+  // Measure counts:       1-- 2-- 3-- 4-- 5-- 6-- 7-- 8--
+  if (measure > 8 && measure < 25)
+  {
+    if (measureLoop1 == 1 || measureLoop1 == 3 || measureLoop1 == 5)
+    {
+      if (instBeat == 1)
+      { pulseOrb3.pulse()}
+      else if (instBeat == 2)
+      { pulseOrb4.pulse()}
+      else if (instBeat == 3)
+      { pulseOrb1.pulse()}
+    }
 
-  /*
+    else if (measureLoop1 == 2 || measureLoop1 == 4)
+    {
+      if (instBeat == 1)
+      { pulseOrb2.pulse();}
+      else if (instBeat == 3)
+      { pulseOrb1.pulse();}
+    }
+
+    else if (measureLoop1 == 6)
+    {
+      if (instBeat == 1)
+      { pulseOrb2.pulse();}
+      else if (instBeat == 2)
+      { pulseOrb1.pulse();}
+      else if (instBeat == 3)
+      { pulseOrb3.pulse();}
+    }
+
+    if (measureLoop1 == 7)
+    {
+      if (instBeat == 1)
+      { pulseOrb1.pulse();}
+      else if (instBeat == 2)
+      { pulseOrb4.pulse();}
+    }
+  }
+
+  // pulseOrb renderings
+  pulseOrb1.draw();
+  pulseOrb2.draw();
+  pulseOrb3.draw();
+  pulseOrb4.draw();
+/*
   // Tool for testing tempo: Displays measures, beats, beatTimer, and frameRate
-  if (beat == 1 || beat == 2 || beat == 3)
+  if (instBeat == 1 || instBeat == 2 || instBeat == 3)
   {
     fill(255,255,255);
   }
@@ -233,21 +291,22 @@ function draw()
     fill(0,0,0);
   }
   ellipse(midX, canvasHeight/4, 50);
-  fill(0,0,0);
+  fill(100,100,100);
   text(measure, canvasWidth/4, midY);
   text(beat, midX, midY);
   text(beatTimer, canvasWidth * 3/4, midY + 30);
   text(frameRate(), midX, canvasHeight *3/4);
-  */
+*/
 
-  /*
+
   // Tool for identifying x and y positions for object placement
-  fill(0,0,0);
+  fill(100,100,100);
   strokeWeight(1);
-  stroke(0,0,0);
+  stroke(100,100,100);
   text(mouseX, midX - 30, 30);
   text(mouseY, midX + 30, 30);
-  */
+
+  text(pulseOrb2.animFrame, 40, canvasHeight - 30);
 
   prevTime = timer;
 }
@@ -337,5 +396,121 @@ function harp(x,y, animFrame, amp, r, g, b)
 
   dir *= -1;
 }
+
+  // Object for orbs that pulse during certain notes.
+  function pulseOrb(x, y, radius, r, g, b) {
+    this.x = x;
+    this.y = y;
+    this.rad = radius;
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.animFrame = -2;
+    this.opacity = 255;
+    this.tempRad = 1;
+    this.opDelta = 20;
+
+    this.hide = function()
+    {
+      this.animFrame = -2;
+    }
+
+    /*
+    // Changes orb's position
+    this.move = function(x,y)
+    {
+      this.x = x;
+      this.y = y;
+    }
+
+    // Changes orb's standard radius
+    this.radius = function(radius)
+    {
+      this.rad = radius;
+    }
+
+    // Changes orb's color
+    this.color = function(red, green, blue)
+    {
+      r = this.red;
+      g = this.green;
+      b = this.blue;
+    }
+    */
+
+    // Triggers the orb's pulse animation
+    this.pulse = function()
+    {
+      // Begins animation if orb has been initialized
+      if (this.animFrame > -1)
+      { this.animFrame = 1;}
+      // Initializes orb for creation animation if it hasn't been done yet.
+      else if (this.animFrame < -1)
+      { this.animFrame = -1;}
+    }
+
+    this.wave = function(opDelta)
+    {
+      this.opDelta = opDelta;
+    }
+
+    this.draw = function()
+    {
+      noStroke();
+      fill(r,g,b);
+
+      // Creation animation
+      if (this.animFrame == -1)
+      {
+        // If the this.tempRadius is equal to or higher than standard, moves to pulse animation
+        if (this.tempRad >= this.rad)
+        { this.animFrame = 1;}
+
+        // this.tempRadius grows until it reaches the standard radius
+        else
+        {
+        ellipse(x,y, this.tempRad);
+        this.tempRad += this.rad/4;
+        }
+      }
+
+      // Pulse animation.  No "else" on this if statement so creation animation can move into pulse animation
+      if (this.animFrame > 0)
+      {
+        // Second orb grows and fades
+        this.opacity = 255 - (5 + this.animFrame * this.opDelta);
+        fill(r,g,b, this.opacity);
+        ellipse(x,y,this.rad + this.animFrame*5);
+
+        // Original orb pulses, and returns to normal size
+        fill(r,g,b, 255);
+        //ellipse(x,y, this.rad);
+        if (this.animFrame < 4)
+        {
+          this.tempRad = this.rad + this.animFrame * 2;
+          ellipse(x,y, this.tempRad);
+        }
+        else if (this.tempRad > this.rad)
+        {
+          this.tempRad--;
+          ellipse(x,y, this.tempRad);
+        }
+        else
+        { ellipse(x,y,this.rad);}
+
+
+        if (this.opacity <= 0)
+        { this.animFrame = 0;}
+        else
+        { this.animFrame++;}
+      }
+
+      // Idle rendering
+      else if (this.animFrame == 0)
+      { ellipse(x,y,this.rad);}
+
+    }
+  }
+
 
 //function squareNote(x,y, w, h, animFrame, r, g, b, a)
