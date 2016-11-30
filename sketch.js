@@ -81,6 +81,14 @@ function setup()
   pulseOrb4 = new pulseOrb(midX, 50,   20, 255,255,255);
   pulseOrb4.wave(10);      // makes pulseOrb4's shockwave effect last longer
 
+  // JumpOrb constructors
+  jumpOrb1 = new jumpOrb(50,  30, 220,50,15);
+  jumpOrb2 = new jumpOrb(150, 30, 220,50,15);
+  jumpOrb3 = new jumpOrb(250, 30, 220,50,15);
+  jumpOrb4 = new jumpOrb(350, 30, 220,50,15);
+  jumpOrb5 = new jumpOrb(450, 30, 220,50,15);
+  jumpOrb6 = new jumpOrb(550, 30, 220,50,15);
+
   music.setVolume(0.1);
   music.play();
   startUpTime = millis();
@@ -281,6 +289,54 @@ function draw()
   pulseOrb2.draw();
   pulseOrb3.draw();
   pulseOrb4.draw();
+
+
+  // JumpOrb animation Triggers
+  // Jump orb note order:   ---213 ---214 ---213 ---214 ---213 ---214 ---215 ---216
+  // Half-beat count:	      1+2+3+ 1+2+3+ 1+2+3+ 1+2+3+ 1+2+3+ 1+2+3+ 1+2+3+ 1+2+3+
+  // Measure Count:	        1----- 2----- 3----- 4----- 5----- 6----- 7----- 8-----
+  if (measure > 16 && measure < 25)
+  {
+    if (instBeat == 2.5)
+    { jumpOrb2.jump()}
+    else if (instBeat == 3)
+    { jumpOrb1.jump()}
+
+    if (measureLoop1 == 1 || measureLoop1 == 3 || measureLoop1 == 5)
+    {
+      if (instBeat == 3.5)
+      { jumpOrb3.jump()}
+    }
+
+    else if (measureLoop1 == 2 || measureLoop1 == 4 || measureLoop1 == 6)
+    {
+      if (instBeat == 3.5)
+      { jumpOrb4.jump()}
+    }
+
+    else if (measureLoop1 == 7)
+    {
+      if (instBeat == 3.5)
+      { jumpOrb5.jump()}
+    }
+
+    else if (measureLoop1 == 8)
+    {
+      if (instBeat == 3.5)
+      { jumpOrb6.jump()}
+    }
+
+    jumpOrb1.draw();
+    jumpOrb2.draw();
+    jumpOrb3.draw();
+    jumpOrb4.draw();
+    jumpOrb5.draw();
+  }
+  if (measure > 16 && measure < 26)
+  { jumpOrb6.draw();}
+
+
+
 /*
   // Tool for testing tempo: Displays measures, beats, beatTimer, and frameRate
   if (instBeat == 1 || instBeat == 2 || instBeat == 3)
@@ -297,9 +353,9 @@ function draw()
   text(beat, midX, midY);
   text(beatTimer, canvasWidth * 3/4, midY + 30);
   text(frameRate(), midX, canvasHeight *3/4);
-*/
 
-  /*
+
+
   // Tool for identifying x and y positions for object placement
   fill(100,100,100);
   strokeWeight(1);
@@ -307,10 +363,12 @@ function draw()
   text(mouseX, midX - 30, 30);
   text(mouseY, midX + 30, 30);
 
-  text(pulseOrb2.animFrame, 40, canvasHeight - 30);
-  */
+
+  text(jumpOrb1.animTrigger, 40, canvasHeight - 30);
+*/
 
   prevTime = timer;
+
 }
 
 /*
@@ -410,7 +468,7 @@ function harp(x,y, animFrame, amp, r, g, b)
     this.animFrame = -2;
     this.opacity = 255;
     this.tempRad = 1;
-    this.opDelta = 20;
+    this.opDelta = 15;
 
     this.hide = function()
     {
@@ -459,7 +517,7 @@ function harp(x,y, animFrame, amp, r, g, b)
     this.draw = function()
     {
       noStroke();
-      fill(r,g,b);
+      fill(this.r,this.g,this.b);
 
       // Creation animation
       if (this.animFrame == -1)
@@ -511,6 +569,43 @@ function harp(x,y, animFrame, amp, r, g, b)
       else if (this.animFrame == 0)
       { ellipse(x,y,this.rad);}
 
+    }
+  }
+
+  function jumpOrb(x,radius,r,g,b)
+  {
+    this.x = x;
+    this.y = canvasHeight + radius;         // Orbs always start at the bottom of the screen
+    this.rad = radius;
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.vel = 0;
+    this.animTrigger = 0;
+    this.vel = -30;
+
+    this.jump = function()
+    {
+      this.animTrigger = 1;
+    }
+
+    this.draw = function()
+    {
+      if (this.animTrigger == 1)
+      {
+      this.y += this.vel;
+      this.vel += 5;
+
+        if (this.y > canvasHeight + this.rad)
+        {
+          this.animTrigger = 0;
+          this.y = canvasHeight + this.rad;
+          this.vel = -30;
+        }
+      }
+      fill(this.r,this.g,this.b);
+      noStroke();
+      ellipse(this.x, this.y, this.rad);
     }
   }
 
